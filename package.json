@@ -1,0 +1,25 @@
+{
+  "name": "deka_map",
+  "version": "1.0.0",
+  "description": "",
+  "main": "core.js",
+  "dependencies": {
+    "@types/geojson": "^7946.0.2",
+    "@types/leaflet": "^1.2.7",
+    "@types/leaflet-draw": "^0.4.12"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jorotenev/deka_coordinates.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/jorotenev/deka_coordinates/issues"
+  },
+  "homepage": "https://github.com/jorotenev/deka_coordinates#readme"
+}
