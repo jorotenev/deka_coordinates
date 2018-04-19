@@ -14,7 +14,7 @@ const geoUtils = (function (L) {
      * @param {number} bearing - direction, in degrees from north clockwise
      * @return the new point and the new bearing
      * */
-    function destinationPoint(coordinate: L.LatLng, distance = 500, bearing = Bearing.east): { point: L.LatLng, new_bearing: number } {
+    function destinationPoint(coordinate: L.LatLng, distance = 500, bearing): { point: L.LatLng, new_bearing: number } {
 
         // sinφ2 = sinφ1⋅cosδ + cosφ1⋅sinδ⋅cosθ
         // tanΔλ = sinθ⋅sinδ⋅cosφ1 / cosδ−sinφ1⋅sinφ2
@@ -70,9 +70,30 @@ const geoUtils = (function (L) {
         return num * 180 / Math.PI
     }
 
-    function isWithinBounds(bounds: [number, number], num: number) {
-        let minLat = Math.min(...bounds), maxLat = Math.max(...bounds);
-        return (minLat <= num) && (num <= maxLat);
+    /**
+     * https://stackoverflow.com/questions/5191088/how-to-round-up-a-number-in-javascript
+     * @param num The number to round
+     * @param precision The number of decimal places to preserve
+     */
+    function roundUp(num, precision) {
+        precision = Math.pow(10, precision);
+        return Math.ceil(num * precision) / precision
+    }
+
+    function removeLastXDigits(num, ignoreLastXSymbols) {
+        let precision = num.toString().split('.')[1].length;
+        return roundUp(num, precision - ignoreLastXSymbols)
+    }
+
+    function isWithinBounds(bounds: [number, number], num: number, ignoreLastXDigits = 5) {
+        const adjustPrecision = (n) => removeLastXDigits(n, ignoreLastXDigits);
+
+        let adjustedPrecisionBounds = bounds.map(adjustPrecision);
+        let adjustedPrecisionNum = adjustPrecision(num);
+
+        let minLat = Math.min(...adjustedPrecisionBounds), maxLat = Math.max(...adjustedPrecisionBounds);
+
+        return (minLat <= adjustedPrecisionNum) && (adjustedPrecisionNum <= maxLat);
     }
 
 

@@ -17,7 +17,6 @@ var geoUtils = (function (L) {
         // tanΔλ = sinθ⋅sinδ⋅cosφ1 / cosδ−sinφ1⋅sinφ2
         // see mathforum.org/library/drmath/view/52049.html for derivation
         if (distance === void 0) { distance = 500; }
-        if (bearing === void 0) { bearing = Bearing.east; }
         var delta = Number(distance) / EARTH_RADIUS; // angular distance in radians
         var theta = toRadians(Number(bearing));
         var phi1 = toRadians(coordinate.lat);
@@ -56,9 +55,26 @@ var geoUtils = (function (L) {
     function toDegrees(num) {
         return num * 180 / Math.PI;
     }
-    function isWithinBounds(bounds, num) {
-        var minLat = Math.min.apply(Math, bounds), maxLat = Math.max.apply(Math, bounds);
-        return (minLat <= num) && (num <= maxLat);
+    /**
+     * https://stackoverflow.com/questions/5191088/how-to-round-up-a-number-in-javascript
+     * @param num The number to round
+     * @param precision The number of decimal places to preserve
+     */
+    function roundUp(num, precision) {
+        precision = Math.pow(10, precision);
+        return Math.ceil(num * precision) / precision;
+    }
+    function removeLastXDigits(num, ignoreLastXSymbols) {
+        var precision = num.toString().split('.')[1].length;
+        return roundUp(num, precision - ignoreLastXSymbols);
+    }
+    function isWithinBounds(bounds, num, ignoreLastXDigits) {
+        if (ignoreLastXDigits === void 0) { ignoreLastXDigits = 5; }
+        var adjustPrecision = function (n) { return removeLastXDigits(n, ignoreLastXDigits); };
+        var adjustedPrecisionBounds = bounds.map(adjustPrecision);
+        var adjustedPrecisionNum = adjustPrecision(num);
+        var minLat = Math.min.apply(Math, adjustedPrecisionBounds), maxLat = Math.max.apply(Math, adjustedPrecisionBounds);
+        return (minLat <= adjustedPrecisionNum) && (adjustedPrecisionNum <= maxLat);
     }
     // the public members
     return {

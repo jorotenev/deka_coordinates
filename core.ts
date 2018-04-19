@@ -1,119 +1,120 @@
-enum Bearing {
-    east = 90,
-    west = -90,
-
-    north = 0,
-    south = 180
-}
-
-enum RectangleSide {
-    // todo add others
-    northWest = "NorthWest"
-}
-
-type createCoordinatesOpts = {
-    boundingRectangle: L.Rectangle,
-    distance: number,
-}
-
-function coordsOfRow(bounds: L.LatLngBounds, initialCoord: L.LatLng, distance) {
-    let result: L.LatLng[] = [];
-    let currentPosition: L.LatLng = initialCoord;
-    while (geoUtils.isWithinBounds([bounds.getWest(), bounds.getEast()], currentPosition.lng)) {
-        result.push(currentPosition);
-        let next = geoUtils.calculateNextPoint(currentPosition, distance, Bearing.east);
-        currentPosition = next.point;
+const core = (function () {
+    const default_circle_radius = 150;
+    type createCoordinatesOpts = {
+        boundingRectangle: L.Rectangle,
+        distance: number,
     }
-    return result;
-}
+    type createCoordinatesReturn = { main: L.LatLng[], fillers: L.LatLng[], combined: L.LatLng[] };
 
+    /**
+     * This function is the core of the whole repo.
+     *
+     * The function receives createCoordinatesReturn rectangle and wants to figure out the positions of circles, such that
+     * the circles fill out the whole rectangle. We allow for the circles to overlap.
+     *
+     * All circles discussed below have the same radius (R = @options.dist/2).
+     *
+     * The function "iterates" the rectangle from west-to-east, north-to-south.
+     * A row is createCoordinatesReturn "line" from west-to-east.
+     *
+     * On each row the circles are next to each other, without overlapping (i.e. 0 distance b/w circles on createCoordinatesReturn row)
+     * There's no distance between circles on adjacent columns too.
+     * This means that these "main" circles will not fill up the whole rectangle.
+     *
+     * Thus, between each two adjacent "main" rows (e.g. rows A and B)  we insert createCoordinatesReturn filler row (F).
+     * Row F is effectively copy of A but shifted first south and then east by the radius R. The last element of the filler
+     * row is removed since it's too far from the east end of the bounding rectangle.
+     *
+     * @param {createCoordinatesOpts} options. .dist is the distance between the centers of two circles. i.e. it is the radius of createCoordinatesReturn circle
+     * @return {{main: LatLng[]; fillers: LatLng[]; combined: LatLng[]}}
+     */
+    function createCoordinates(options: createCoordinatesOpts): createCoordinatesReturn {
+        const result: L.LatLng[] = [], fillers: L.LatLng[] = [];
 
-function crateCoordinates(options: createCoordinatesOpts): { main: L.LatLng[], fillers: L.LatLng[], combined: L.LatLng[] } {
-    let result: L.LatLng[] = [];
-    let fillers: L.LatLng[] = [];
-    const rectBounds = options.boundingRectangle.getBounds();
+        const rectBounds = options.boundingRectangle.getBounds();
+        const initialPoint = Object.freeze(rectBounds.getNorthWest());
 
-    const dist = options.distance;
+        let currentCoord: L.LatLng = initialPoint;
+        let currentRowInitial = currentCoord;
+        for (let row = 1; ; row++) {
 
-    const initialPoint = Object.freeze(rectBounds.getNorthWest());
-    let currentCoord: L.LatLng = initialPoint;
+            let currentRowCirclesCoords = circleCoordsOfRow(rectBounds, currentRowInitial, options.distance);
+            result.push(...currentRowCirclesCoords);
 
-    for (let row = 1; ; row++) { // rows
+            let fillerFirstCoord = moveToSouthEast(currentRowInitial, options.distance);
 
-        const currentRowInitial = Object.freeze(currentCoord);
-        result.push(currentRowInitial);
-        for (; ;) { // cols
-            currentCoord = geoUtils.calculateNextPoint(currentCoord, options.distance, Bearing.east).point;
-
-            result.push(L.latLng(currentCoord.lat, currentCoord.lng));
-
-            if (!geoUtils.isWithinBounds([rectBounds.getWest(), rectBounds.getEast()], currentCoord.lng)) {
-                let shiftSouth = geoUtils.calculateNextPoint(currentRowInitial, dist / 2, Bearing.south).point;
-                let shiftEast = geoUtils.calculateNextPoint(shiftSouth, dist / 2, Bearing.east).point;
-
-                let helperRowCoords: L.LatLng[] = coordsOfRow(rectBounds, shiftEast, dist);
+            if (!geoUtils.isWithinBounds([rectBounds.getNorth(), rectBounds.getSouth()], currentCoord.lat)) {
+                break;
+            } else {
+                let helperRowCoords: L.LatLng[] = circleCoordsOfRow(rectBounds, fillerFirstCoord, options.distance);
+                helperRowCoords.pop();
                 fillers.push(...helperRowCoords);
-                break // start a new row
             }
-        }
 
-        // get the first coordinate of the next row
-        if (!geoUtils.isWithinBounds([rectBounds.getNorth(), rectBounds.getSouth()], currentCoord.lat)) {
-            break
+            currentRowInitial = currentCoord = geoUtils.calculateNextPoint(initialPoint, options.distance * row, Bearing.south).point;
         }
-        currentCoord = geoUtils.calculateNextPoint(initialPoint, options.distance * row, Bearing.south).point;
+        return {main: result, fillers: fillers, combined: result.concat(fillers)}
 
     }
-    return {main: result, fillers: fillers, combined: result.concat(fillers)}
 
-}
+    /**
+     * (generates rows for createCoordinates())
+     * Generate the coordinates of circles on createCoordinatesReturn generic row (i.e. used for both "main"/"filler" rows).
+     *
+     * The function starts from createCoordinatesReturn given @initialCoord and moves east. On each iteration it checks if the current
+     * coordinate is within the longitude bounds of the rect (i.e. at most one circle beyond the east side of the rect).
+     * If it's beyond - the function returns the row. Since we add to the result before we make the bound check,
+     * we allow for at most one circle beyond the bounds.
+     *
+     * @param {LatLngBounds} bounds - the bounds of the big rectangle around the city
+     * @param {LatLng} initialCoord - where is the centre of the first circle on that row
+     * @param distance - the distance between the centers of two adjacent circles on this row
+     * @return {LatLng[]} the coordinates of the centers of all circles on this row
+     */
+    function circleCoordsOfRow(bounds: L.LatLngBounds, initialCoord: L.LatLng, distance) {
+        const eastBound = bounds.getEast();
+
+        let result: L.LatLng[] = [];
+        let currentPosition: L.LatLng = initialCoord;
+        for (; ;) {
+            result.push(currentPosition);
+            /*
+            use initialCoord.lng instead of "westBound" because of createCoordinatesReturn numerical error propagated up from calculateNextPoint().
+            the error increases the more we go south from the north-west point of @bounds.
+
+            tl;dr it's due to the fact that the earth has an imperfect shape
+            */
+            if (!geoUtils.isWithinBounds([initialCoord.lng, eastBound], currentPosition.lng)) {
+                break
+            }
+            currentPosition = geoUtils.calculateNextPoint(currentPosition, distance, Bearing.east).point;
+        }
+
+        return result;
+    }
+
+    function moveToSouthEast(currentRowInitial, dist) {
+        let shiftSouth = geoUtils.calculateNextPoint(currentRowInitial, dist / 2, Bearing.south).point;
+        return geoUtils.calculateNextPoint(shiftSouth, dist / 2, Bearing.east).point;
+    }
+
+    enum Bearing {
+        east = 90,
+        west = -90,
+
+        north = 0,
+        south = 180
+    }
+
+    enum RectangleSide {
+        // todo add others
+        northWest = "NorthWest"
+    }
 
 
-function drawCircles(coords: L.LatLng[], layer: L.LayerGroup, circleRadius = 300, circleOptions = {}) {
-    let opts = {
-        color: "red",
-        ...circleOptions
-    };
-    coords.forEach((coord: L.LatLng) => {
-        new L.Circle(coord, circleRadius, opts).addTo(layer)
-    })
-}
+    return {
+        getCoordinates: createCoordinates,
+        default_circle_radius: default_circle_radius
+    }
 
-
-function main() {
-
-    let rectangleBounds: L.LatLngBounds = L.latLngBounds(rawAreaCoords.map(function (coord): [number, number] {
-        return [coord.lat, coord.lng]
-    }));
-    let boundingRectangle: L.Rectangle = L.rectangle(rectangleBounds).addTo(map);
-
-
-    // the radius of the circles that will fill the rectangle
-    const circle_radius = 150; // metres
-    // create all the coordinates of the circles within the bounding area
-    const coords = crateCoordinates({
-        boundingRectangle: boundingRectangle,
-        distance: circle_radius * 2,
-    });
-
-    // create a layer on which the circles will be drawn
-    let circlesLayer = new L.FeatureGroup().addTo(map);
-    drawCircles(coords.combined, circlesLayer, circle_radius);
-    // drawCircles(coords.fillers, circlesLayer, circle_radius, {color: 'green'});
-
-    // draw circles at the boundaries of the boundingRectangle
-    const northWest = boundingRectangle.getBounds().getNorthWest();
-    const northEast = boundingRectangle.getBounds().getNorthEast();
-    const southWest = boundingRectangle.getBounds().getSouthWest();
-    const southEast = boundingRectangle.getBounds().getSouthEast();
-    drawCircles([
-        northWest,
-        northEast,
-        southWest,
-        southEast,
-    ], circlesLayer, circle_radius, {color: "blue", fillOpacity: 0.1});
-
-
-}
-
-main()
+})();
