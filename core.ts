@@ -28,7 +28,7 @@ function coordsOfRow(bounds: L.LatLngBounds, initialCoord: L.LatLng, distance) {
 }
 
 
-function crateCoordinates(options: createCoordinatesOpts): { main: L.LatLng[], fillers: L.LatLng[] } {
+function crateCoordinates(options: createCoordinatesOpts): { main: L.LatLng[], fillers: L.LatLng[], combined: L.LatLng[] } {
     let result: L.LatLng[] = [];
     let fillers: L.LatLng[] = [];
     const rectBounds = options.boundingRectangle.getBounds();
@@ -39,8 +39,9 @@ function crateCoordinates(options: createCoordinatesOpts): { main: L.LatLng[], f
     let currentCoord: L.LatLng = initialPoint;
 
     for (let row = 1; ; row++) { // rows
+
         const currentRowInitial = Object.freeze(currentCoord);
-        result.push(currentRowInitial)
+        result.push(currentRowInitial);
         for (; ;) { // cols
             currentCoord = geoUtils.calculateNextPoint(currentCoord, options.distance, Bearing.east).point;
 
@@ -51,6 +52,7 @@ function crateCoordinates(options: createCoordinatesOpts): { main: L.LatLng[], f
                 let shiftEast = geoUtils.calculateNextPoint(shiftSouth, dist / 2, Bearing.east).point;
 
                 let helperRowCoords: L.LatLng[] = coordsOfRow(rectBounds, shiftEast, dist);
+                fillers.push(...helperRowCoords);
                 break // start a new row
             }
         }
@@ -60,8 +62,9 @@ function crateCoordinates(options: createCoordinatesOpts): { main: L.LatLng[], f
             break
         }
         currentCoord = geoUtils.calculateNextPoint(initialPoint, options.distance * row, Bearing.south).point;
+
     }
-    return {main: result, fillers: fillers}
+    return {main: result, fillers: fillers, combined: result.concat(fillers)}
 
 }
 
@@ -95,9 +98,10 @@ function main() {
 
     // create a layer on which the circles will be drawn
     let circlesLayer = new L.FeatureGroup().addTo(map);
-    drawCircles(coords.main, circlesLayer, circle_radius);
-    drawCircles(coords.fillers, circlesLayer, circle_radius, {color: 'green'});
-    // debug
+    drawCircles(coords.combined, circlesLayer, circle_radius);
+    // drawCircles(coords.fillers, circlesLayer, circle_radius, {color: 'green'});
+
+    // draw circles at the boundaries of the boundingRectangle
     const northWest = boundingRectangle.getBounds().getNorthWest();
     const northEast = boundingRectangle.getBounds().getNorthEast();
     const southWest = boundingRectangle.getBounds().getSouthWest();

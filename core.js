@@ -45,6 +45,7 @@ function crateCoordinates(options) {
                 var shiftSouth = geoUtils.calculateNextPoint(currentRowInitial, dist / 2, Bearing.south).point;
                 var shiftEast = geoUtils.calculateNextPoint(shiftSouth, dist / 2, Bearing.east).point;
                 var helperRowCoords = coordsOfRow(rectBounds, shiftEast, dist);
+                fillers.push.apply(fillers, helperRowCoords);
                 break; // start a new row
             }
         }
@@ -54,7 +55,7 @@ function crateCoordinates(options) {
         }
         currentCoord = geoUtils.calculateNextPoint(initialPoint, options.distance * row, Bearing.south).point;
     }
-    return { main: result, fillers: fillers };
+    return { main: result, fillers: fillers, combined: result.concat(fillers) };
 }
 function drawCircles(coords, layer, circleRadius, circleOptions) {
     if (circleRadius === void 0) { circleRadius = 300; }
@@ -78,9 +79,9 @@ function main() {
     });
     // create a layer on which the circles will be drawn
     var circlesLayer = new L.FeatureGroup().addTo(map);
-    drawCircles(coords.main, circlesLayer, circle_radius);
-    drawCircles(coords.fillers, circlesLayer, circle_radius, { color: 'green' });
-    // debug
+    drawCircles(coords.combined, circlesLayer, circle_radius);
+    // drawCircles(coords.fillers, circlesLayer, circle_radius, {color: 'green'});
+    // draw circles at the boundaries of the boundingRectangle
     var northWest = boundingRectangle.getBounds().getNorthWest();
     var northEast = boundingRectangle.getBounds().getNorthEast();
     var southWest = boundingRectangle.getBounds().getSouthWest();
