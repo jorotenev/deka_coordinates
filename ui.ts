@@ -1,11 +1,24 @@
 declare let $;
 
-function download(content, fileName, contentType) {
-    let a = document.createElement("createCoordinatesReturn");
-    let file = new Blob([content], {type: contentType});
-    a.href = URL.createObjectURL(file);
-    a.download = fileName;
-    a.click();
+/**
+ * https://stackoverflow.com/a/33542499
+ * @param data
+ * @param filename
+ * @param contentType
+ */
+function download(data, filename, contentType) {
+    let blob = new Blob([data], {type: contentType});
+    if (window.navigator.msSaveOrOpenBlob) {
+        window.navigator.msSaveBlob(blob, filename);
+    }
+    else {
+        let elem = window.document.createElement('a');
+        elem.href = window.URL.createObjectURL(blob);
+        elem.download = filename;
+        document.body.appendChild(elem);
+        elem.click();
+        document.body.removeChild(elem);
+    }
 }
 
 function regenerate(boundingRectangle) {
@@ -28,8 +41,7 @@ function regenerate(boundingRectangle) {
     downloadBtn.onclick = function () {
         console.log("Downloading...")
         try {
-            let ts = new Date().toDateString().re(" ", "_")
-            download(JSON.stringify(coords.combined), `coords_${ts}.json`, 'application/json');
+            download(JSON.stringify(coords.combined), `coords.json`, 'application/json');
         } catch (err) {
             console.error(err)
         }
