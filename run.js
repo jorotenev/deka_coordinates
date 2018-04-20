@@ -35,7 +35,11 @@ function regenerate(boundingRectangle, circlesLayer) {
     var downloadBtn = document.getElementById('download-btn');
     console.log("generated " + coords.combined.length + " circles ");
     downloadBtn.onclick = function () {
-        saveFile(JSON.stringify(coords.combined), "coords.json", 'application/json');
+        var toSave = {
+            coordinates: coords.combined,
+            circleRadius: circle_radius
+        };
+        saveFile(JSON.stringify(toSave), "coords_" + toSave.coordinates.length + "_r" + circle_radius + ".json", 'application/json');
     };
 }
 /**

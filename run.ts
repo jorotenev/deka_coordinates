@@ -46,7 +46,11 @@ function regenerate(boundingRectangle: L.Rectangle, circlesLayer) {
     console.log(`generated ${coords.combined.length} circles `);
 
     downloadBtn.onclick = function () {
-        saveFile(JSON.stringify(coords.combined), `coords.json`, 'application/json');
+        let toSave = {
+            coordinates: coords.combined,
+            circleRadius: circle_radius
+        }
+        saveFile(JSON.stringify(toSave), `coords_${toSave.coordinates.length}_r${circle_radius}.json`, 'application/json');
     };
 }
 
