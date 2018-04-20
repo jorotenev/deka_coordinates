@@ -1,10 +1,11 @@
 var core = (function () {
-    var default_circle_radius = 150;
+    var DEFAULT_CIRCLE_RADIUS = 150; // meters
     /**
      * This function is the core of the whole repo.
      *
-     * The function receives createCoordinatesReturn rectangle and wants to figure out the positions of circles, such that
-     * the circles fill out the whole rectangle. We allow for the circles to overlap.
+     * The function receives createCoordinatesReturn rectangle and wants to figure out
+     * the coordinates of the centers of circles, such that the circles fill out the whole rectangle.
+     * We allow for the circles to overlap.
      *
      * All circles discussed below have the same radius (R = @options.dist/2).
      *
@@ -81,6 +82,7 @@ var core = (function () {
         var shiftSouth = geoUtils.calculateNextPoint(currentRowInitial, dist / 2, Bearing.south).point;
         return geoUtils.calculateNextPoint(shiftSouth, dist / 2, Bearing.east).point;
     }
+    // i.e. direction
     var Bearing;
     (function (Bearing) {
         Bearing[Bearing["east"] = 90] = "east";
@@ -95,6 +97,6 @@ var core = (function () {
     })(RectangleSide || (RectangleSide = {}));
     return {
         getCoordinates: createCoordinates,
-        default_circle_radius: default_circle_radius
+        DEFAULT_CIRCLE_RADIUS: DEFAULT_CIRCLE_RADIUS
     };
 })();
