@@ -28,7 +28,7 @@ const core = (function () {
      * row is removed since it's too far from the east end of the bounding rectangle.
      *
      * @param {createCoordinatesOpts} options. .dist is the distance between the centers of two circles. i.e. it is the radius of createCoordinatesReturn circle
-     * @return {{main: LatLng[]; fillers: LatLng[]; combined: LatLng[]}}
+     * @return {createCoordinatesReturn}
      */
     function createCoordinates(options: createCoordinatesOpts): createCoordinatesReturn {
         const result: L.LatLng[] = [], fillers: L.LatLng[] = [];
