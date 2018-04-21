@@ -20,7 +20,9 @@
 
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
           integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
-    <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.1.0/css/font-awesome.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.0.10/css/all.css"
+          integrity="sha384-+d0P83n9kaQMCwj8F4RJB66tzIwOKmrdb46+porD/OvrJ+37WqIM7UoBtwHO6Nlg" crossorigin="anonymous">
+
 
     <link rel="stylesheet" href="vendor/leaflet-sidebar.min.css"/>
 
@@ -40,25 +42,25 @@
             font-style: italic;
             color: #AAA;
         }
+
+
     </style>
 
 </head>
 <body>
-<div id="sidebar" class="sidebar collapsed">
-    &lt;!&ndash; Nav tabs &ndash;&gt;
+<div id="sidebar" class="sidebar">
+
     <div class="sidebar-tabs">
         <ul role="tablist">
-            <li><a href="#settings" role="tab"><i class="fa fa-gear"></i></a></li>
+            <li><a href="#settings" role="tab"><i class="fa fa-cog"></i></a></li>
         </ul>
     </div>
 
-    &lt;!&ndash; Tab panes &ndash;&gt;
     <div class="sidebar-content">
         <div class="sidebar-pane" id="settings">
             <h1 class="sidebar-header">Settings<span class="sidebar-close"><i class="fa fa-caret-left"></i></span></h1>
-            <p>
-            <div class="container">
 
+            <div class="container">
                 <input type="number" id="radius-size" placeholder="150"
                        class="row">
                 <input type="button" id="regenerate-btn" value="Redraw" class="btn row"/>
@@ -66,8 +68,6 @@
                 <input type="button" id="download-btn" value="Download .json" class="btn btn-primary row"/>
             </div>
 
-
-            </p>
         </div>
     </div>
 </div>
@@ -76,7 +76,7 @@
 
 <!--set up the map-->
 <!--enable drawing and expose a callback that will receive the rectangle drawn by the user-->
-<script src="app.js"></script>
+<script src="index.js"></script>
 
 
 </body>

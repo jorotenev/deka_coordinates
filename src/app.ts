@@ -1,17 +1,23 @@
-declare let $;
+import {map, drawCircles, enableDrawing} from "./map"
+import {DEFAULT_CIRCLE_RADIUS, createCoordinates} from "./core"
+
+declare let $; // jquery and leaflet are "imported" in the html via <script>
+declare let L;
+
+
 /**
  * Orchestrate it all
  */
 (function run() {
     // the leaflet layer on which the circles generated circles will be drawn
-    const circlesLayer = new L.FeatureGroup().addTo(leaflet.map);
+    const circlesLayer = new L.FeatureGroup().addTo(map);
 
     // set default circle radius
-    $("#radius-size").attr("value", core.DEFAULT_CIRCLE_RADIUS);
+    $("#radius-size").attr("value", DEFAULT_CIRCLE_RADIUS);
 
     // attach a callback to the event when a user has drawn a rectangle on the map.
     // the defining coords of the rectangle are then passed to a callback that we set here
-    leaflet.enableDrawing(
+    enableDrawing(
         onCityBoundaryReady.bind(null, circlesLayer),
         circlesLayer.clearLayers);
 })();
@@ -28,28 +34,28 @@ function regenerate(boundingRectangle: L.Rectangle, circlesLayer) {
 
     // the radius of the circles that will fill the rectangle
     const circle_radius = getUserSelectedCircleRadius(); // metres
-    console.log(`${circle_radius} circle radius`)
+    console.log(`${circle_radius} circle radius`);
 
     // generate all the coordinates of the circles within the bounding area
     // *only* the coordinates of the *center* of the circles is returned
-    const coords = core.getCoordinates({
+    const coords = createCoordinates({
         boundingRectangle: boundingRectangle,
         distance: circle_radius * 2,
     });
     // .main & .fillers is used to debug easily. The union of the two sets of circles
     // is in .combined
-    leaflet.drawCircles(coords.main, circlesLayer, circle_radius);
-    leaflet.drawCircles(coords.fillers, circlesLayer, circle_radius, {color: 'green'});
+    drawCircles(coords.main, circlesLayer, circle_radius);
+    drawCircles(coords.fillers, circlesLayer, circle_radius, {color: 'green'});
 
     let downloadBtn = document.getElementById('download-btn');
 
     console.log(`generated ${coords.combined.length} circles `);
 
     downloadBtn.onclick = function () {
-        let toSave = {
+        const toSave = {
             coordinates: coords.combined,
             circleRadius: circle_radius
-        }
+        };
         saveFile(JSON.stringify(toSave), `coords_${toSave.coordinates.length}_r${circle_radius}.json`, 'application/json');
     };
 }
