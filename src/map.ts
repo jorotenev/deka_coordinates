@@ -49,15 +49,18 @@ export function enableDrawing(callbackOnRectDrawn: (rectangle: L.Rectangle) => a
         console.log(type + " drawn");
         let latlngs = layer.getLatLngs()[0];
         layerForUserRectangles.addLayer(layer);
+
+        console.log("Boundaries of the area of interest:");
         console.log(JSON.stringify(latlngs));
 
-        // convert the result
+        // prepare the result to be used for constructing a rectangle
         const rectangleBounds: L.LatLngBounds = L.latLngBounds(latlngs.map(function (coord): [number, number] {
             return [coord.lat, coord.lng]
         }));
+        // make the rectangle, which encompasses the area which we want to fill with circles
         const boundingRectangle: L.Rectangle = L.rectangle(rectangleBounds);
 
-        // pass the drawn rectangle to the callback
+        // pass the rectangle to the callback
         callbackOnRectDrawn(boundingRectangle);
     });
     map.on("draw:deleted", callbackOnDelete)
