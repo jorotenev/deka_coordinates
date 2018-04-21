@@ -8,7 +8,7 @@ This repo contains a simple html page with a map + some .js that helps to genera
 ![demo of the app](https://github.com/jorotenev/deka_coordinates/blob/master/.images/deka_map.png)
 
 ## Usage
-1. Open index.html
+1. Open `index.html`
 1. Select the *rectangle* tool and draw a rect on the map - a preview of the circles is immediately shown.
 1. Click on the gears icon on the top left to download a .JSON file with the circles
 ```
@@ -21,7 +21,7 @@ This repo contains a simple html page with a map + some .js that helps to genera
 
 
 ## How it works
-The idea in essence to fill the rectangle row by row with circles and then add more "filler" circles between every two
+The idea in essence is to fill the rectangle row by row with circles and then add more "filler" circles between every two
 rows so that all of the rectangle is filled. It leads to overlapping circles, but this is fine. It just means that
 when querying, the same venue can appear in two circles.
 

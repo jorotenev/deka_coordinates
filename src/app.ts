@@ -34,7 +34,7 @@ function regenerate(boundingRectangle: L.Rectangle, circlesLayer) {
 
     // the radius of the circles that will fill the rectangle
     const circle_radius = getUserSelectedCircleRadius(); // metres
-    console.log(`${circle_radius} circle radius`);
+    console.log(`${circle_radius}m circle radius`);
 
     // generate all the coordinates of the circles within the bounding area
     // *only* the coordinates of the *center* of the circles is returned
@@ -49,7 +49,7 @@ function regenerate(boundingRectangle: L.Rectangle, circlesLayer) {
 
     let downloadBtn = document.getElementById('download-btn');
 
-    console.log(`generated ${coords.combined.length} circles `);
+    console.log(`Generated ${coords.combined.length} circles `);
 
     downloadBtn.onclick = function () {
         const toSave = {
