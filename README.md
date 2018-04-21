@@ -1,7 +1,8 @@
 # deka_coordinates
-I needed to use Google Places API to gather some data for a city. The problem is that for a given set of coordinates and a radius (i.e. a _Circle_),
-the Google API returns at most 60 results. So for cities, with likely more than 60 places, just using a circle with a big radius wouldn't work.
- This repo generates the coordinates of many smaller circles, which cover a geographical area.
+When querying the Google Places API, there's a limit of 60 places for a given query. The query is defined by a set of coordinates and a radius - i.e. a circle.
+This repo generates the coordinates of many circles within a rectangular geographical area.
+Each generated circle can be then used for a single query to the Google Places API.
+The smaller radius of the generated circles makes it more likely that all places within the circle are returned by the query.
 
 This repo contains a simple html page with a map + some .js that helps to generate the coordinates of all circles within a given rectangle, drawn by you on the map.
 
@@ -18,7 +19,7 @@ This repo contains a simple html page with a map + some .js that helps to genera
 }
 ```
 1. You can use each of the circles (a coordinate + radius) to query Google Places API.
-
+1. You can optionally change the radius of the circles and press "Redraw"
 
 ## How it works
 The idea in essence is to fill the rectangle row by row with circles and then add more "filler" circles between every two
