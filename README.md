@@ -4,7 +4,7 @@ the Google API returns at most 60 results. So for cities, with likely more than 
  This repo generates the coordinates of many smaller circles, which cover a geographical area.
 
 This repo contains a simple html page with a map + some .js that helps to generate the coordinates of all circles within a given rectangle, drawn by you on the map.
-[[https://github.com/jorotenev/deka_map/blob/master/.images/deka_map.png|alt=demo of the app]]
+[[https://github.com/jorotenev/deka_coordinates/blob/master/.images/deka_map.png|alt=demo of the app]]
 
 ## Usage
 1. Open index.html
