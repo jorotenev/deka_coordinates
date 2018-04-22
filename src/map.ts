@@ -2,7 +2,7 @@ export let map;
 export let layerForUserRectangles;
 declare let L;
 // add the map to the page
-map = L.map('map', {preferCanvas: true}).setView([42.697930, 23.321628], 13);
+map = L.map('map').setView([42.697930, 23.321628], 13);
 L.tileLayer('https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token={accessToken}', {
     attribution: 'Map data &copy; <createCoordinatesReturn href="http://openstreetmap.org">OpenStreetMap</createCoordinatesReturn> contributors, <createCoordinatesReturn href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</createCoordinatesReturn>, Imagery © <createCoordinatesReturn href="http://mapbox.com">Mapbox</createCoordinatesReturn>',
     maxZoom: 18,
@@ -83,7 +83,7 @@ export function drawCircles(coords: L.LatLng[], layer: L.LayerGroup, circleRadiu
         ...circleOptions
     };
     coords.forEach((coord: L.LatLng) => {
-        L.circle(coord, {radius: circleRadius}, {renderer: myRenderer, ...circleOptions}).addTo(layer)
+        L.circle(coord, {radius: circleRadius}, circleOptions).addTo(layer)
     })
 }
 

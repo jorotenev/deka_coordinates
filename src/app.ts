@@ -1,7 +1,8 @@
 import {map, drawCircles, enableDrawing} from "./map"
 import {DEFAULT_CIRCLE_RADIUS, createCoordinates} from "./core"
 
-declare let $; // jquery and leaflet are "imported" in the html via <script>
+// jquery and leaflet are "imported" in the html via <script>
+declare let $;
 declare let L;
 
 
@@ -19,7 +20,7 @@ declare let L;
     // the defining coords of the rectangle are then passed to a callback that we set here
     enableDrawing(
         onCityBoundaryReady.bind(null, circlesLayer),
-        circlesLayer.clearLayers);
+        () => circlesLayer.clearLayers());
 })();
 
 /**
@@ -54,7 +55,7 @@ function regenerate(boundingRectangle: L.Rectangle, circlesLayer) {
     downloadBtn.onclick = function () {
         const toSave = {
             coordinates: coords.combined,
-            circleRadius: circle_radius
+            circle_radius: circle_radius
         };
         saveFile(JSON.stringify(toSave), `coords_${toSave.coordinates.length}_r${circle_radius}.json`, 'application/json');
     };
