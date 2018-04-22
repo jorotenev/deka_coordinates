@@ -27,3 +27,8 @@ rows so that all of the rectangle is filled. It leads to overlapping circles, bu
 when querying, the same venue can appear in two circles.
 
 
+
+## Contribute
+* npm install
+* Change the TypeScript files in `src/`
+* npm run build

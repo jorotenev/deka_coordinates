@@ -2,7 +2,7 @@
   "name": "deka_map",
   "version": "1.0.0",
   "description": "",
-  "main": "app.js",
+  "main": "index.js",
   "private": true,
   "dependencies": {},
   "devDependencies": {
