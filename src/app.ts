@@ -51,13 +51,20 @@ function regenerate(boundingRectangle: L.Rectangle, circlesLayer) {
     let downloadBtn = document.getElementById('download-btn');
 
     console.log(`Generated ${coords.combined.length} circles `);
-
     downloadBtn.onclick = function () {
+        const nw = boundingRectangle.getBounds().getNorthWest();
+        const se = boundingRectangle.getBounds().getSouthEast();
+        const area_name = prompt("Enter area name", "")
         const toSave = {
+            area_name: area_name,
+            circle_radius: circle_radius,
+            bounding_rectangle: {
+                northwest: {lat: nw.lat, lng: nw.lng},
+                southeast: {lat: se.lat, lng: se.lng},
+            },
             coordinates: coords.combined,
-            circle_radius: circle_radius
         };
-        saveFile(JSON.stringify(toSave), `coords_${toSave.coordinates.length}_r${circle_radius}.json`, 'application/json');
+        saveFile(JSON.stringify(toSave), `${area_name}_coords_${toSave.coordinates.length}_r${circle_radius}.json`, 'application/json');
     };
 }
 
